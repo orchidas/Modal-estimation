@@ -9,6 +9,9 @@ function [mode_params, irhat] = frequency_zoomed_modal(ir, fs, f0, r, opt_flag, 
 % r - downsampling factor
 % opt_flag - optimization flag, 0 or 1
 % room_flag - RIR flag, 0 or 1
+% plot - whether to plot intermediate fits
+% optim_type - 'td' or 'fd' (time domain or pole optimization)
+% 
 % Outputs
 % mode params - M x 3 matrix containing mode frequencies, decay rates and amps
 % irhat - modeled signal
@@ -16,6 +19,7 @@ function [mode_params, irhat] = frequency_zoomed_modal(ir, fs, f0, r, opt_flag, 
 %%
 
 if nargin < 6
+    opt_type = 'td'
     room_flag = 0;
     plot = 0;
 end
@@ -128,7 +132,10 @@ for b = (1:nbands)
     if opt_flag
         % undo heterodyne
         irf = real(conj(mu).*irf);
-        [fmbchat, a1mbchat] = optimize_modes_td(irf, fmbchat, abs(log(a1mbchat)),[], fs, delf);
+        if strcmp(opt_type, 'td')
+            [fmbchat, a1mbchat] = optimize_modes_td(irf, fmbchat, abs(log(a1mbchat)),[], fs, delf);
+        else
+            [fmbchat, a1mbchat] = constrained_pole_optimization(irf, fsr, fmbchat, a1mbchat, ft(i), ft(i+1));
     end
         
     fmhat = [fmhat; fmbchat];   %concatenate with previous band estimates
