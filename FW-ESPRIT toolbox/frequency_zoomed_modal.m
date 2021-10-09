@@ -1,4 +1,4 @@
-function [mode_params, irhat] = frequency_zoomed_modal(ir, fs, f0, r, opt_flag, room_flag)
+function [mode_params, irhat] = frequency_zoomed_modal(ir, fs, f0, r, opt_flag, varargin)
 
 %%
 % Frequency-zoomed (subband) modal estimation
@@ -17,6 +17,7 @@ function [mode_params, irhat] = frequency_zoomed_modal(ir, fs, f0, r, opt_flag, 
 
 if nargin < 6
     room_flag = 0;
+    plot = 0;
 end
 
 
@@ -100,28 +101,12 @@ for b = (1:nbands)
 
     %% estimate frequencies, dampings
 
-    % form offset Hankel matricies
     nh = min(nhmax, length(irb)/2);
+    [fmbhat, a1mbmat, ~, nmb] = hvmodel_freqs_decay(irb, nh, p, fsr, kappa)
+
     H = hankel(irb(1:nh), irb(nh+(0:nh-1)));
     K = hankel(irb(p+(1:nh)), irb(p+nh+(0:nh-1)));
     
-
-    % generate Hankel matrix pseudoinverse
-    [U, S, Ut] = svd(H);
-    sigma = flipud(cumsum(flipud(diag(S).^2)))/sum(diag(S).^2);
-    nmb = find(sigma < 10^(kappa/20), 1);
-    [~,knee_point] = knee_pt(20*log10(diag(S)/S(1,1))); %no less than 20 modes in a band
-    nmb = min(knee_point, nmb);
-    Hinv = Ut(:,1:nmb)*diag(1./diag(S(1:nmb,1:nmb)))*U(:,1:nmb)';
-
-    % find offset Hankel matrix generalized eigenstructure
-    [W, D, Wt] = eig(K*Hinv);
-
-    % compute band mode parameters, band impulse response estimate
-    lambda = diag(D(1:nmb,1:nmb));
-    [fmbhat, order] = sort(angle(lambda)*fsr/(2*pi*p));
-    a1mbhat = abs(lambda(order)).^(1/p);
-
     
     if room_flag
         % if mode budget is not completely alloted, redistribute it in remaining bands
@@ -152,43 +137,45 @@ for b = (1:nbands)
 
     %% plot results
     
-    rtaps = length(irb);
-    tr = (0:rtaps-1)'/fsr;
-    index = find(abs(a1mbhat) < 1);
-    basis = exp(1j*2*pi*tr*fmbhat(index)' + tr*log(a1mbhat(index)')*fsr);
-    gmbhat = basis(p+1:end,:) \ irb(p+1:end);
-    irbhat = [zeros(p,1); basis(p+1:end,:)*gmbhat];
 
+    if plot
 
-    figure(2); clf;
-    set(2, 'Position', [716 34 560 917]);
+        rtaps = length(irb);
+        tr = (0:rtaps-1)'/fsr;
+        index = find(abs(a1mbhat) < 1);
+        basis = exp(1j*2*pi*tr*fmbhat(index)' + tr*log(a1mbhat(index)')*fsr);
+        gmbhat = basis(p+1:end,:) \ irb(p+1:end);
+        irbhat = [zeros(p,1); basis(p+1:end,:)*gmbhat];
 
-    % plot Hankel, Vandermonde eigenstructure
-    subplot(4,1,1);
-    plot((1:nh), 20*log10(diag(S)/S(1,1)), '.', ...
-        (1:nmb), 20*log10(diag(S(1:nmb,1:nmb))/S(1,1)), '.'); grid;
-    title(['Hankel rir matrix singular values, ', int2str(nmb), ' modes, band ', int2str(b)]);
-    xlabel('mode index'); ylabel('amplitude, dB');
-    ylim([-60 0]);
+        figure(2); clf;
+        set(2, 'Position', [716 34 560 917]);
 
-    % plot mode frequencies, dampings
-    rtlims = [2e1 5e4];
-    subplot(4,1,2);
-    semilogy((fmbhat+fh(b))/1000, log(0.001)./log(a1mbhat)*1000/fsr, '.', ...
-        [1; 1]*ft(b:b+1)/1000, rtlims'*[1 1], '-'); grid;
-    title(['estimated mode decay times, ', int2str(nmb), ' modes']);
-    xlabel('frequency, kHz'); ylabel('60 dB decay time, ms');
-    xlim([0 fs/2000]); ylim(rtlims);
+        % plot Hankel, Vandermonde eigenstructure
+        subplot(4,1,1);
+        plot((1:nh), 20*log10(diag(S)/S(1,1)), '.', ...
+            (1:nmb), 20*log10(diag(S(1:nmb,1:nmb))/S(1,1)), '.'); grid;
+        title(['Hankel rir matrix singular values, ', int2str(nmb), ' modes, band ', int2str(b)]);
+        xlabel('mode index'); ylabel('amplitude, dB');
+        ylim([-60 0]);
 
-    % plot given, estimated responses
-    scale = max(abs(irb));
-    subplot(4,1,[3 4]);
-    plot((p:rtaps-1)/fsr, real([irb(p+1:end) irbhat(p+1:end)]) * [eye(2) [-1 1]']/scale, '-', ...
-        (p:rtaps-1)/fsr, imag([irb(p+1:end) irbhat(p+1:end)]) * [eye(2) [-1 1]']/scale + 1); grid;
-    title('given, estimated band responses, error');
-    xlabel('time, seconds'); ylabel('amplitude');
-    xlim([0 1]); ylim([-0.5 1.5]);
+        % plot mode frequencies, dampings
+        rtlims = [2e1 5e4];
+        subplot(4,1,2);
+        semilogy((fmbhat+fh(b))/1000, log(0.001)./log(a1mbhat)*1000/fsr, '.', ...
+            [1; 1]*ft(b:b+1)/1000, rtlims'*[1 1], '-'); grid;
+        title(['estimated mode decay times, ', int2str(nmb), ' modes']);
+        xlabel('frequency, kHz'); ylabel('60 dB decay time, ms');
+        xlim([0 fs/2000]); ylim(rtlims);
 
+        % plot given, estimated responses
+        scale = max(abs(irb));
+        subplot(4,1,[3 4]);
+        plot((p:rtaps-1)/fsr, real([irb(p+1:end) irbhat(p+1:end)]) * [eye(2) [-1 1]']/scale, '-', ...
+            (p:rtaps-1)/fsr, imag([irb(p+1:end) irbhat(p+1:end)]) * [eye(2) [-1 1]']/scale + 1); grid;
+        title('given, estimated band responses, error');
+        xlabel('time, seconds'); ylabel('amplitude');
+        xlim([0 1]); ylim([-0.5 1.5]);
+    end
 
 
 end
