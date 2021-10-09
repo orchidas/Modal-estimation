@@ -128,7 +128,7 @@ for b = (1:nbands)
     if opt_flag
         % undo heterodyne
         irf = real(conj(mu).*irf);
-        [fmbchat, a1mbchat] = optimize_modes(irf, fmbchat, abs(log(a1mbchat)),[], fs, delf);
+        [fmbchat, a1mbchat] = optimize_modes_td(irf, fmbchat, abs(log(a1mbchat)),[], fs, delf);
     end
         
     fmhat = [fmhat; fmbchat];   %concatenate with previous band estimates

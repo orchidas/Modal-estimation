@@ -1,4 +1,4 @@
-function [fmopt, a1mopt, niter, nfunc] = bandwise_td_optimize(ir, fmhat0, a1mhat0, f0, fs, deltaf, room_flag)
+function [fmopt, a1mopt, niter, nfunc] = bandwise_td_optimize(ir, fmhat0, a1mhat0, f0, fs, deltaf, room_flag, optim_type)
 %% 
 % Time domain mode optimization, but performed frequency bandwise for
 % faster convergence
@@ -16,6 +16,10 @@ function [fmopt, a1mopt, niter, nfunc] = bandwise_td_optimize(ir, fmhat0, a1mhat
 % nfunc - number of function counts
 % Author - Orchisama Das,2021
 %%
+
+if nargin < 8
+    optim_type = 'td';
+end
 
 
 maxFreq = max(fmhat0);
@@ -80,7 +84,12 @@ for b = 1:nbands
     
     %optimize now
     if ~isempty(indexb)
-        [fmbhat,a1mbhat,iter,func] = optimize_modes(irf,fmbhat0,a1mbhat0,[],fs,deltaf);
+
+        if strcmp(optim_type, 'td')
+            [fmbhat,a1mbhat,iter,func] = optimize_modes_td(irf,fmbhat0,a1mbhat0,[],fs,deltaf);
+        else
+            [fmbhat,a1mbhat,iter,func] = constrained_pole_optimization(irf, fsr, fmbhat0, exp(a1mbhat0), ft(i), ft(i+1));
+        end
         fmopt(indexb) =  fmbhat;
         a1mopt(indexb) =  a1mbhat;
         niter = niter + iter;

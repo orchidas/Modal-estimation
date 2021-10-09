@@ -1,4 +1,4 @@
-function [fmopt, a1mopt, niter, nfunc] = optimize_modes(h, fmhat0, a1mhat0, t60_lims, fs, deltaf)
+function [fmopt, a1mopt, niter, nfunc] = optimize_modes_td(h, fmhat0, a1mhat0, t60_lims, fs, deltaf)
 %% 
 % Optimize mode freqs and dampings to fit impulse response
 % Inputs
