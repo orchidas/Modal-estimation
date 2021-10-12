@@ -18,6 +18,7 @@ function [fmopt, a1mopt, niter, nfunc] = optimize_modes_td(h, fmhat0, a1mhat0, t
 
 T = length(h);
 M = length(fmhat0);
+fig1 = figure;
 
 function[err, grad] = costfn(theta)
 
@@ -31,7 +32,8 @@ function[err, grad] = costfn(theta)
     err = 0.5*norm(h - hhat)^2;
 
 
-    figure(5); plot((0:T-1)*1000/fs, [h, hhat]); grid;
+    fig1; 
+    plot((0:T-1)*1000/fs, [h, hhat]); grid;
     xlabel('time, milliseconds'); ylabel('amplitude');
     ylim([-max(abs(h)) max(abs(h))]);
     drawnow;
@@ -53,25 +55,10 @@ function[err, grad] = costfn(theta)
         D(:,M+1:end) = 2*pi*tmat.*exp(-fs*t*a1m').*(cos(t*wm').*gsmat - sin(t*wm').*gcmat);
         grad = D.'*(hhat - h);
  
-%         grad = zeros(2*M,1);
-%         for i = 1:M
-%             grad(i) = sum(gradient(a1m(i),wm(i),gs(i),gc(i),t,'alpha')...
-%                 .*(hhat - h));
-%             grad(i+M) = sum(gradient(a1m(i),wm(i),gs(i),gc(i),t,'omega')...
-%                 .*(hhat - h));
-%         end
+
     end
 
 end
-
-% %gradient calculation
-% function[elem] = gradient(a1m, wm, gs, gc, t, param)
-%     if strcmp(param,'alpha')
-%         elem = -fs*t.*exp(-a1m*t*fs).*(gs.*sin(wm*t) + gc*cos(wm*t));
-%     else 
-%         elem = 2*pi*t.*exp(-a1m*t*fs).*(gs.*cos(wm*t) - gc.*sin(wm*t));
-%     end
-% end
 
 
 %optimization stopping criteria
@@ -108,7 +95,7 @@ A = [zeros(M,M), full(spdiags([e -e], 0:1, M,M))];
 b = zeros(M,1);
 
 
-figure(6);
+fig2 = figure;
 subplot(2,1,1); plot(decay_to_t60(a1mhat0,fs), 'o'); grid;hold on;
 subplot(2,1,2); plot(fmhat0, 'o'); grid;hold on;
 drawnow;
@@ -122,7 +109,7 @@ a1mopt = theta(1:M);
 fmopt = theta(M+1:end);
     
 
-figure(6);grid on;
+fig2;grid on;
 subplot(2,1,1); plot(decay_to_t60(a1mopt,fs), 'o'); hold off; ylabel('T60 (s)');
 subplot(2,1,2); plot(fmopt, 'o'); hold off; ylabel('Frequency (Hz)');
 drawnow;
