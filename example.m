@@ -5,8 +5,7 @@ path = '../data/RIR/';
 r = 100;  %downsampling factor
 opt_flag = 0;   %optimization flag
 room_flag = 1;  %RIR flag
-[mode_params, rirhat] = frequency_warped_modal(rir,fs,[],opt_flag,room_flag);
-% [mode_params, rirhat] = frequency_zoomed_modal(rir,fs,[],r,opt_flag,room_flag);
+[mode_params, rirhat] = frequency_zoomed_modal(rir,fs,[],r,opt_flag,room_flag);
 
 
 % hear results
@@ -36,7 +35,7 @@ finish = round(duration*fs);
 ir = ir(start:finish);
 f0 = 32.7;
 
-[mode_params, irhat] = frequency_zoomed_modal(ir,fs,f0,r,opt_flag, room_flag);
+[mode_params, irhat] = frequency_warped_modal(ir, fs, f0, opt_flag, room_flag);
 
 % hear results
 soundsc(ir,fs);pause(2);
