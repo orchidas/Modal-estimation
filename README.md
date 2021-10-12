@@ -4,4 +4,4 @@
 
 <p> Time-domain sequential optimization, or frequency-domain constrained pole optimization further tunes the estimated modal parameters. The constrained pole optimizer has not been tested yet.</p>
 
-See <a href = "test_RIR.m">test_RIR.m</a> for an example on how to use the toolbox. </p>
+See <a href = "example.m">example.m</a> for an example on how to use the toolbox. </p>
