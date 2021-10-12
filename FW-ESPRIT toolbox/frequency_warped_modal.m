@@ -19,7 +19,7 @@ t = (0:ntaps-1)'/fs;
 dur = min(length(ir),2.0*fs); %data used to calculate mode amplitudes
 
 % modeling parameters
-nh = 4000;  % Hankel matrix dimension, columns
+nh = 2048;  % Hankel matrix dimension, columns
 p = 1;  % offset Hankel matrix shift, taps
 kappa1 = -40;   % minimum mode singular value,
 kappa2 = -40;
@@ -34,8 +34,6 @@ fc = acos(-rhol)/pi * (fs/2);
 
 %% estimate high frequency mode parameters 
 
-% [bH,aH] = butter(4, fc*(2/fs), 'high');
-% irh = filtfilt(bH,aH,ir);
 
 %introduce some extra damping
 alpha = 2;
@@ -46,8 +44,6 @@ a1mhat0 = a1mhat0.^exp(alpha*(ntaps-1)/fs);   %undo damping
    
 %% estimate low frequency mode parameters 
 
-% [bL, aL] = butter(4, fc*(2/fs));
-% irl = filtfilt(bL, aL, ir);
 
 % warp impulse response
 irl_warp = warpfir(ir,rhol);
