@@ -18,10 +18,27 @@ function [mode_params, irhat] = frequency_zoomed_modal(ir, fs, f0, r, opt_flag, 
 % Author - Orchisama Das, 2020
 %%
 
-if nargin < 6
-    opt_type = 'td'
-    room_flag = 0;
-    plot = 0;
+
+
+switch(nargin)
+  
+    case 6
+        room_flag = varargin{1};
+        plot_flag = 0;
+        opt_type = 'td';
+    case 7
+        room_flag = varargin{1};
+        plot_flag = varargin{2};
+        opt_type = 'td';
+    case 8
+        room_flag = varargin{1};
+        plot_flag = varargin{2};
+        opt_type = varargin{3};
+    otherwise
+        room_flag = 0;
+        plot_flag = 0;
+        opt_type = 'td';
+
 end
 
 
@@ -66,8 +83,7 @@ if room_flag
     
 %% Piano modal estimation
 else     
-%     fUP = 16000;    %piano partials won't exceed 16k
-%     nbands = floor(fUP/f0);
+
     nbands = 60;
     B = 10^-4;
     n = 1:nbands+1;
@@ -106,10 +122,7 @@ for b = (1:nbands)
     %% estimate frequencies, dampings
 
     nh = min(nhmax, length(irb)/2);
-    [fmbhat, a1mbmat, ~, nmb] = hvmodel_freqs_decay(irb, nh, p, fsr, kappa)
-
-    H = hankel(irb(1:nh), irb(nh+(0:nh-1)));
-    K = hankel(irb(p+(1:nh)), irb(p+nh+(0:nh-1)));
+    [fmbhat, a1mbhat, S, nmb] = hvmodel_freqs_decay(irb, nh, p, fsr, kappa);
     
     
     if room_flag
@@ -136,6 +149,7 @@ for b = (1:nbands)
             [fmbchat, a1mbchat] = optimize_modes_td(irf, fmbchat, abs(log(a1mbchat)),[], fs, delf);
         else
             [fmbchat, a1mbchat] = constrained_pole_optimization(irf, fsr, fmbchat, a1mbchat, ft(i), ft(i+1));
+        end
     end
         
     fmhat = [fmhat; fmbchat];   %concatenate with previous band estimates
@@ -145,7 +159,7 @@ for b = (1:nbands)
     %% plot results
     
 
-    if plot
+    if plot_flag
 
         rtaps = length(irb);
         tr = (0:rtaps-1)'/fsr;
@@ -159,8 +173,8 @@ for b = (1:nbands)
 
         % plot Hankel, Vandermonde eigenstructure
         subplot(4,1,1);
-        plot((1:nh), 20*log10(diag(S)/S(1,1)), '.', ...
-            (1:nmb), 20*log10(diag(S(1:nmb,1:nmb))/S(1,1)), '.'); grid;
+        plot(1:nh, 20*log10(diag(S)./S(1,1)), '.');hold on; 
+        plot(1:nmb, 20*log10(diag(S(1:nmb,1:nmb))./S(1,1)), '.'); hold off; grid;
         title(['Hankel rir matrix singular values, ', int2str(nmb), ' modes, band ', int2str(b)]);
         xlabel('mode index'); ylabel('amplitude, dB');
         ylim([-60 0]);
@@ -182,6 +196,7 @@ for b = (1:nbands)
         title('given, estimated band responses, error');
         xlabel('time, seconds'); ylabel('amplitude');
         xlim([0 1]); ylim([-0.5 1.5]);
+        drawnow;
     end
 
 
