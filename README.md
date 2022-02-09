@@ -1,6 +1,6 @@
 <h2>Modal estimation toolbox</h2>
 
-<p> Methods included in this toolbox are 
+<p> Modes characterize resonant systems; estimating them accurately is tricky. Each mode of a system has a unique complex amplitude, a damping factor and a frequency. This toolbox contains algorithms to find modes from audio signals. Methods included are 
 
 <ul>
 	<li> <b>Frequency Zoomed-ARMA</b> - Karjalainen, Matti, Paulo AA Esquef, Poju Antsalo, Aki Mäkivirta, and Vesa Välimäki. "Frequency-zooming ARMA modeling of resonant and reverberant systems." Journal of the Audio Engineering Society 50, no. 12 (2002): 1012-1029.</li>
