@@ -20,9 +20,7 @@ See <a href = "example.m">example.m</a> for an example on how to use the toolbox
 <p>
 <ul>
 	<li>  Karjalainen, Matti, Paulo AA Esquef, Poju Antsalo, Aki Mäkivirta, and Vesa Välimäki. "Frequency-zooming ARMA modeling of resonant and reverberant systems." Journal of the Audio Engineering Society 50, no. 12 (2002): 1012-1029. </li>
-
 	<li> Kereliuk, Corey, Woody Herman, Russel Wedelich, and Daniel J. Gillespie. "Modal analysis of room impulse responses using subband ESPRIT." In Proceedings of the International Conference on Digital Audio Effects. 2018. </li>
-
 	<li> Maestre, Esteban, Jonathan S. Abel, Julius O. Smith, and Gary P. Scavone. "Constrained pole optimization for modal reverberation." In Proc. of the 5th International Conference on Digital Audio Effects (DAFx). 2017. </li>
 
 </ul>
