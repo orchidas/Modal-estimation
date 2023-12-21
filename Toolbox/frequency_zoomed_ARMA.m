@@ -1,5 +1,25 @@
-function [mode_params, irhat] = frequency_zoomed_ARMA(ir, fs, f0, r, opt_flag, room_flag)
+function [mode_params, irhat] = frequency_zoomed_ARMA(ir, fs, r, opt_flag, room_flag, varargin)
 
+%%
+% Estimate modal parameters with frequency-zoomed ARMA. 
+% Inputs:
+% ir - time-domain signal whose modes are to be estimated
+% f - sampling frequency
+% r - downsampling factor
+% opt_flag - whether to optimise the estimated modes
+% room_flag - is the signal a room impulse response
+% Optional:
+% f0 - fundamental frequency of the signal (provided for harmonic signals)
+% Outputs
+% mode_params - struct containing the mode frequencies, decay rates and
+% amplitudes
+%%
+
+p = inputParser;
+p.KeepUnmatched = true;
+addParameter(p, 'f0', []);
+parse(p,varargin{:});
+f0 = p.Results.f0;
 
 ntaps = length(ir); % impulse response length, taps
 t = (0:ntaps-1)'/fs;    % time axis, seconds
@@ -154,9 +174,13 @@ end
 a1mhat(a1mhat >= 1) = 0.9999;
 [gmhat,irhat] = estimate_mode_amps(ir(1:dur), fmhat, a1mhat, p, t, fs, dur, opt_flag);
 if opt_flag
-    mode_params = [fmhat, a1mhat, gmhat(1:length(fmhat)), gmhat(length(fmhat)+1:end)];
+    mode_params.freqs = fmhat;
+    mode_params.decay_rate = a1mhat;
+    mode_params.amplitude = [gmhat(1:length(fmhat)), gmhat(length(fmhat)+1:end)];
 else
-    mode_params = [fmhat, a1mhat, gmhat];
+    mode_params.freqs = fmhat;
+    mode_params.decay_rate = a1mhat;
+    mode_params.amplitude = gmhat;
 end
 
 

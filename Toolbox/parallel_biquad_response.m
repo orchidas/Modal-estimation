@@ -3,11 +3,14 @@ function [H] = parallel_biquad_response(g, fmhat, a1mhat, fs, wvec)
 	%%
 	% H(z) = \sum_{i=1}^M \frac{g_0,i + g_1,iz^{-1}}{1 - a_1,i z^{-1} - a_2,i
 	% z^{-2}}
+    % Inputs:
 	% g - numerator coefficients
 	% fmhat - mode frequencies
 	% a1mhat - mode decay rates
 	% fs - sampling rate
 	% wvec - frequencies over which H is to be calculated
+    % Outputs:
+    % H - transfer function in the frequency domain calculated over wvec
 	%%
 
 	M = length(fmhat);

@@ -2,19 +2,19 @@ function [mode_params, irhat] = frequency_zoomed_modal(ir, fs, f0, r, opt_flag, 
 
 %%
 % Frequency-zoomed (subband) modal estimation
-% Inputs - 
+% Inputs : 
 % ir - measured signal
 % fs - sampling rate
 % f0 - fundamental frequency (if any)
 % r - downsampling factor
 % opt_flag - optimization flag, 0 or 1
+% Optional:
 % room_flag - RIR flag, 0 or 1
 % plot - whether to plot intermediate fits
 % optim_type - 'td' or 'fd' (time domain or pole optimization)
-% 
-% Outputs
-% mode params - M x 3 matrix containing mode frequencies, decay rates and amps
-% irhat - modeled signal
+% Outputs :
+% mode params - struct containing mode frequencies, decay rates and amps
+% irhat - reconstructed signal using estimated modes
 % Author - Orchisama Das, 2020
 %%
 
@@ -124,7 +124,6 @@ for b = (1:nbands)
     nh = min(nhmax, length(irb)/2);
     [fmbhat, a1mbhat, S, nmb] = hvmodel_freqs_decay(irb, nh, p, fsr, kappa);
     
-    
     if room_flag
         % if mode budget is not completely alloted, redistribute it in remaining bands
         if nmb <= nmbmax(b) 
@@ -138,7 +137,8 @@ for b = (1:nbands)
     
     % assign variables
     indexb = find((abs(fmbhat)+fh(b) > ft(b)) & (abs(fmbhat)+fh(b) < ft(b+1)));
-    fmbchat = fmbhat(indexb)+fh(b); %undo heterodyne - move frequencies up the spectrum
+    % undo heterodyne - move frequencies up the spectrum
+    fmbchat = fmbhat(indexb)+fh(b); 
     a1mbchat = a1mbhat(indexb).^(1/r);
     
     % optimize modes (if flag is true)
@@ -148,7 +148,7 @@ for b = (1:nbands)
         if strcmp(opt_type, 'td')
             [fmbchat, a1mbchat] = optimize_modes_td(irf, fmbchat, abs(log(a1mbchat)),[], fs, delf);
         else
-            [fmbchat, a1mbchat] = constrained_pole_optimization(irf, fsr, fmbchat, a1mbchat, ft(i), ft(i+1));
+            [fmbchat, a1mbchat] = constrained_pole_optimization(irf, fsr, fmbchat, a1mbchat, ft(b), ft(b+1));
         end
     end
         
@@ -207,10 +207,14 @@ end
 a1mhat(a1mhat >= 1) = 0.9999;
 [gmhat,irhat] = estimate_mode_amps(ir(1:dur), fmhat, a1mhat, p, t, fs, dur, opt_flag);
 
-if opt_flag
-    mode_params = [fmhat, a1mhat, gmhat(1:length(fmhat)), gmhat(length(fmhat)+1:end)];
+if opt_flag && strcmp(opt_type, 'td')
+    mode_params.freqs = fmhat;
+    mode_params.decay_rate = a1mhat;
+    mode_params.amplitude = [gmhat(1:length(fmhat)), gmhat(length(fmhat)+1:end)];
 else
-    mode_params = [fmhat, a1mhat, gmhat];
+    mode_params.freqs = fmhat;
+    mode_params.decay_rate = a1mhat;
+    mode_params.amplitude = gmhat;
 end
 
 
