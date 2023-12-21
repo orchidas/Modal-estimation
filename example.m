@@ -8,7 +8,7 @@ room_flag = 1;  %RIR flag
 [mode_params, rirhat] = frequency_zoomed_modal(rir,fs,[],r,opt_flag,room_flag);
 
 % resynthesize signal using parallel biquads
-rirhat_biquad = resyntesize_signal(mode_params, length(rir), fs, 'use_parallel_biquads', true);
+rirhat_biquad = resynthesize_signal(mode_params, length(rir), fs, 'use_parallel_biquads', true);
 
 % hear results
 soundsc(rir,fs);pause(2);
@@ -40,7 +40,7 @@ f0 = 32.7;
 [mode_params, irhat] = frequency_warped_modal(ir, fs, f0, opt_flag, room_flag);
 
 % resynthesize signal using parallel biquads
-irhat_biquad = resyntesize_signal(mode_params, duration, fs, 'use_parallel_biquads', true);
+irhat_biquad = resynthesize_signal(mode_params, duration, fs, 'use_parallel_biquads', true);
 
 % hear results
 soundsc(ir,fs);pause(2);
