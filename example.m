@@ -7,13 +7,15 @@ opt_flag = 0;   %optimization flag
 room_flag = 1;  %RIR flag
 [mode_params, rirhat] = frequency_zoomed_modal(rir,fs,[],r,opt_flag,room_flag);
 
+% resynthesize signal using parallel biquads
+rirhat_biquad = resyntesize_signal(mode_params, length(rir), fs, 'use_parallel_biquads', true);
 
 % hear results
 soundsc(rir,fs);pause(2);
-soundsc(rirhat,fs);
+soundsc(rirhat_biquad,fs);
 
 % plot spectrograms
-ftgram([rir, rirhat],fs,'rir');
+ftgram([rir, rirhat_biquad],fs,'rir');
 
 %% test on piano note
 
@@ -37,10 +39,13 @@ f0 = 32.7;
 
 [mode_params, irhat] = frequency_warped_modal(ir, fs, f0, opt_flag, room_flag);
 
+% resynthesize signal using parallel biquads
+irhat_biquad = resyntesize_signal(mode_params, duration, fs, 'use_parallel_biquads', true);
+
 % hear results
 soundsc(ir,fs);pause(2);
-soundsc(irhat,fs);
+soundsc(irhat_biquad,fs);
 
 % plot spectrograms
-ftgram([ir, irhat],fs,'music');
+ftgram([ir, irhat_biquad],fs,'music');
 
