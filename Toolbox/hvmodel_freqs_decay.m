@@ -1,9 +1,18 @@
 function [fmhat, a1mhat, S, nm] = hvmodel_freqs_decay(ir, nh, p, fs, kappa)
-
-%Hankel-Vandermonde modal estimation
-%nh - hankel matrix dimensions
-%ir - impulse response
-%p - offset
+%%
+% Hankel-Vandermonde modal estimation
+% Inputs:
+% ir - impulse response
+% nh - hankel matrix dimensions
+% p - offset (in samples)
+% fs - sampling frequency
+% kappa - threshold (in dB) beyond which singular values are ignored.
+% Outputs:
+% fmhat - vector of estimated mode frequencies
+% a1mhat - vector of estimated mode amplitudes
+% S - singular value matrix (diagonal)
+% nm - number of estimated modes
+%%
 
 if nargin < 5
     kappa = -80;
@@ -30,7 +39,6 @@ nmode = min(knee_point, nmode);
 lambda = diag(D(1:nmode,1:nmode));
 [fmhat, order] = sort(angle(lambda)*fs/(2*pi*p));
 a1mhat = abs(lambda(order)).^(1/p);
-%a1mhat = abs(log(abs(lambda(order)))/p);
 
 end
 

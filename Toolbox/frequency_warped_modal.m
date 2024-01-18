@@ -9,8 +9,8 @@ function [mode_params, irhat] = frequency_warped_modal(ir,fs, f0, opt_flag, room
 % room_flag - is input an RIR? use whenever f0 is not known
 % rhol - warping coefficient for low frequencies
 % Outputs
-% mode params - M x 3 matrix containing mode frequencies, decay rates and amps
-% irhat - modeled signal
+% mode params - struct containing mode frequencies, decay rates and amps
+% irhat - reconstructed signal in the time domain
 % Author - Orchisama Das, 2020
 %%
 
@@ -79,15 +79,16 @@ if opt_flag
         abs(log(a1mhat_com)), [], fs, deltaf, room_flag);
 
     [gmhat, irhat] = estimate_mode_amps(ir, fmhat_opt, a1mhat_opt, p, t, fs, dur, opt_flag);
-    mode_params = [fmhat_opt, a1mhat_opt, gmhat(1:length(fmhat_opt)), gmhat(length(fmhat_opt)+1:end)];
+    mode_params.freqs = fmhat_opt;
+    mode_params.decay_rate = a1mhat_opt;
+    mode_params.amplitude = [gmhat(1:length(fmhat_opt)), gmhat(length(fmhat_opt)+1:end)];
 else
     [gmhat, irhat] = estimate_mode_amps(ir, fmhat_com, a1mhat_com, p, t, fs, dur, opt_flag);
-    mode_params = [fmhat_com, a1mhat_com, gmhat];
+    mode_params.freqs = fmhat_com;
+    mode_params.decay_rate = a1mhat_com;
+    mode_params.amplitude = gmhat;
 end
 
-%% plot results
-
-% plot_ir(ir, irhat, length(ir)/fs, fs, p, 1);
 
 
 end
