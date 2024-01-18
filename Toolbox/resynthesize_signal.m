@@ -5,7 +5,7 @@ function [irhat] = resynthesize_signal(mode_params, dur, fs, varargin)
     % Inputs:
     % mode_params - struct containing mode frequencies, exponentiated decay
     % rates and complex amplitudes
-	% dur - duration in seconds of synthesized response
+	% dur - duration in samples of synthesized response
 	% fs -  sampling rate
     % Optional
     % use_parallel_biquads - if true, the IR will be calculated from the
@@ -28,15 +28,19 @@ function [irhat] = resynthesize_signal(mode_params, dur, fs, varargin)
         sos = zeros(num_modes, 6);
         % set the zeros (numerator coefficients)
         sos(:, 1) = real(gmhat);
-        sos(:, 2) = -a1mhat * real(gmhat .* exp(-2*1j*pi*fmhat / fs));
+        sos(:, 2) = -a1mhat .* real(gmhat .* exp(-2*1j*pi*fmhat / fs));
         % set the poles (denominator coefficients)
-        sos(:, 4) = ones(num_modes);
-        sos(:, 5) = -2 * a1mhat * cos(2*pi*fmhat / fs);
+        sos(:, 4) = ones(num_modes, 1);
+        sos(:, 5) = -2 * a1mhat .* cos(2*pi*fmhat / fs);
         sos(:, 6) = a1mhat .^ 2;
         % form an impulse and get its response
         t = (0:dur-1)/fs;
         impulse = [1; zeros(length(t)-1,1)];
-        irhat = sosfilt(impulse, sos);
+        irhat = zeros(length(t), 1);
+        % parallel biquad filtering
+        for k = 1:num_modes
+            irhat = irhat + sosfilt(sos(k,:), impulse); 
+        end
     else
 	    p = 1;
 	    t = (0:dur-1)/fs;

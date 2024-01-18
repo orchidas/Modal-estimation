@@ -1,5 +1,5 @@
 %% test on room impulse response
-
+addpath('Toolbox/');
 path = '../data/RIR/';
 [rir, fs] = audioread([path,'K217-ir.wav']);
 r = 100;  %downsampling factor
@@ -40,10 +40,10 @@ f0 = 32.7;
 [mode_params, irhat] = frequency_warped_modal(ir, fs, f0, opt_flag, room_flag);
 
 % resynthesize signal using parallel biquads
-irhat_biquad = resynthesize_signal(mode_params, duration, fs, 'use_parallel_biquads', true);
+irhat_biquad = resynthesize_signal(mode_params, length(ir), fs, 'use_parallel_biquads', true);
 
 % hear results
-soundsc(ir,fs);pause(2);
+soundsc(ir,fs);pause(4);
 soundsc(irhat_biquad,fs);
 
 % plot spectrograms
