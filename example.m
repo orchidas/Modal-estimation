@@ -1,6 +1,6 @@
 %% test on room impulse response
 addpath('Toolbox/');
-path = '../data/RIR/';
+path = 'test_data/';
 [rir, fs] = audioread([path,'K217-ir.wav']);
 r = 100;  %downsampling factor
 opt_flag = 0;   %optimization flag
@@ -19,7 +19,6 @@ soundsc(rirhat_biquad,fs);
 
 %% test on piano note
 
-path = '../data/MIS/';
 room_flag = false;
 opt_flag = 1;
 
