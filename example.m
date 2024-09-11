@@ -2,12 +2,13 @@
 addpath('Toolbox/');
 path = 'test_data/';
 [rir, fs] = audioread([path,'K217-ir.wav']);
-r = 100;  %downsampling factor
+r = 20;  %downsampling factor
 opt_flag = 0;   %optimization flag
 room_flag = 1;  %RIR flag
+plot_flag = 1;  % plot fitting in each subband
 
 % run modal estimation
-[mode_params, rirhat] = frequency_zoomed_modal(rir,fs,[],r,opt_flag,room_flag);
+[mode_params, rirhat] = frequency_zoomed_modal(rir,fs,[],r,opt_flag,room_flag,plot_flag);
 
 % resynthesize signal using parallel biquads
 rirhat_biquad = resynthesize_signal(mode_params, length(rir), fs, 'use_parallel_biquads', true);
