@@ -82,7 +82,7 @@ for b = 1:nbands
     
     %optimize now
     if ~isempty(indexb)
-        [fmbhat,a1mbhat,iter,func] = optimize_modes(irf,fmbhat0,a1mbhat0,[],fs,deltaf);
+        [fmbhat,a1mbhat,iter,func] = optimize_modes_td(irf,fmbhat0,a1mbhat0,[],fs,deltaf);
         fmopt(indexb) =  fmbhat;
         a1mopt(indexb) =  a1mbhat;
         niter = niter + iter;

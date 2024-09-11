@@ -18,7 +18,6 @@ function [fmopt, a1mopt, niter, nfunc] = optimize_modes_td(h, fmhat0, a1mhat0, t
 
 T = length(h);
 M = length(fmhat0);
-fig1 = figure;
 
 function[err, grad] = costfn(theta)
 
@@ -32,9 +31,10 @@ function[err, grad] = costfn(theta)
     err = 0.5*norm(h - hhat)^2;
 
 
-    fig1; 
+    figure(1); 
     plot((0:T-1)*1000/fs, [h, hhat]); grid;
-    xlabel('time, milliseconds'); ylabel('amplitude');
+    xlabel ('time, milliseconds'); 
+    ylabel('amplitude');
     ylim([-max(abs(h)) max(abs(h))]);
     drawnow;
 
@@ -95,10 +95,9 @@ A = [zeros(M,M), full(spdiags([e -e], 0:1, M,M))];
 b = zeros(M,1);
 
 
-fig2 = figure;
-subplot(2,1,1); plot(decay_to_t60(a1mhat0,fs), 'o'); grid;hold on;
-subplot(2,1,2); plot(fmhat0, 'o'); grid;hold on;
-drawnow;
+figure(2);
+subplot(211); plot(decay_to_t60(a1mhat0,fs), 'o'); grid;hold on;
+subplot(212); plot(abs(fmhat0), 'o'); grid;hold on;
     
 options = optimoptions('fmincon','Display','iter','SpecifyObjectiveGradient'...
     ,true,'OutputFcn',@outfun, 'CheckGradient',false, 'MaxIterations', 100);
@@ -109,9 +108,9 @@ a1mopt = theta(1:M);
 fmopt = theta(M+1:end);
     
 
-fig2;grid on;
-subplot(2,1,1); plot(decay_to_t60(a1mopt,fs), 'o'); hold off; ylabel('T60 (s)');
-subplot(2,1,2); plot(fmopt, 'o'); hold off; ylabel('Frequency (Hz)');
+figure(2);grid on;
+subplot(211);plot(decay_to_t60(a1mopt,fs), 'o'); hold off; ylabel('T60 (s)');
+subplot(212);plot(abs(fmopt), 'o'); hold off; ylabel('Frequency (Hz)');
 drawnow;
 
 %%

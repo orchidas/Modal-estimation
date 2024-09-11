@@ -76,7 +76,7 @@ if opt_flag
     %a1mhat_opt is the decay rate = log(pole radius)
     deltaf = 2;   % maximum frequency deviation allowed
     [fmhat_opt, a1mhat_opt] = bandwise_td_optimize(ir(1:dur), fmhat_com, ...
-        abs(log(a1mhat_com)), [], fs, deltaf, room_flag);
+        abs(log(a1mhat_com)), f0, fs, deltaf, room_flag);
 
     [gmhat, irhat] = estimate_mode_amps(ir, fmhat_opt, a1mhat_opt, p, t, fs, dur, opt_flag);
     mode_params.freqs = fmhat_opt;

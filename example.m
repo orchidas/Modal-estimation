@@ -5,6 +5,8 @@ path = '../data/RIR/';
 r = 100;  %downsampling factor
 opt_flag = 0;   %optimization flag
 room_flag = 1;  %RIR flag
+
+% run modal estimation
 [mode_params, rirhat] = frequency_zoomed_modal(rir,fs,[],r,opt_flag,room_flag);
 
 % resynthesize signal using parallel biquads
@@ -14,13 +16,12 @@ rirhat_biquad = resynthesize_signal(mode_params, length(rir), fs, 'use_parallel_
 soundsc(rir,fs);pause(2);
 soundsc(rirhat_biquad,fs);
 
-% plot spectrograms
-ftgram([rir, rirhat_biquad],fs,'rir');
 
 %% test on piano note
 
 path = '../data/MIS/';
 room_flag = false;
+opt_flag = 1;
 
 [ir,fs] = audioread([path,'Piano.mf.C1.aiff']);
 
@@ -39,13 +40,8 @@ f0 = 32.7;
 
 [mode_params, irhat] = frequency_warped_modal(ir, fs, f0, opt_flag, room_flag);
 
-% resynthesize signal using parallel biquads
-irhat_biquad = resynthesize_signal(mode_params, length(ir), fs, 'use_parallel_biquads', true);
-
 % hear results
 soundsc(ir,fs);pause(4);
-soundsc(irhat_biquad,fs);
+soundsc(irhat,fs);
 
-% plot spectrograms
-ftgram([ir, irhat_biquad],fs,'music');
 
