@@ -39,9 +39,11 @@ ir = ir(start:finish);
 f0 = 32.7;
 
 [mode_params, irhat] = frequency_warped_modal(ir, fs, f0, opt_flag, room_flag);
+%% 
+irhat_biquad = resynthesize_signal(mode_params, duration*fs, fs, 'use_parallel_biquads', true);
 
 % hear results
 soundsc(ir,fs);pause(4);
-soundsc(irhat,fs);
+soundsc(irhat_biquad,fs);
 
 

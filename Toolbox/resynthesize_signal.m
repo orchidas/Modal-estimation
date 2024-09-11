@@ -27,8 +27,14 @@ function [irhat] = resynthesize_signal(mode_params, dur, fs, varargin)
         num_modes = length(fmhat);
         sos = zeros(num_modes, 6);
         % set the zeros (numerator coefficients)
-        sos(:, 1) = real(gmhat);
-        sos(:, 2) = -a1mhat .* real(gmhat .* exp(-2*1j*pi*fmhat / fs));
+        if (size(gmhat,2) > 1)
+            sos(:, 1) = gmhat(:, 2);
+            sos(:, 2) = a1mhat .* (gmhat(:,1) .* sin(2*pi*fmhat/fs) - ...
+                gmhat(:, 2) .* cos(2*pi*fmhat/fs)); 
+        else
+            sos(:, 1) = real(gmhat);
+            sos(:, 2) = -a1mhat .* real(gmhat .* exp(-2*1j*pi*fmhat / fs));
+        end
         % set the poles (denominator coefficients)
         sos(:, 4) = ones(num_modes, 1);
         sos(:, 5) = -2 * a1mhat .* cos(2*pi*fmhat / fs);
@@ -44,8 +50,16 @@ function [irhat] = resynthesize_signal(mode_params, dur, fs, varargin)
     else
 	    p = 1;
 	    t = (0:dur-1)/fs;
-	    basis = exp(1j*2*pi*t*fmhat' + t*log(a1mhat)'*fs);
-	    irhat = real([zeros(p,1); basis(p+1:end,:)*gmhat]);
+        basis = exp((1j*2*pi*fmhat + log(a1mhat)*fs)*t).';
+
+        if (size(gmhat,2) > 1)
+            Vs = imag(basis);
+            Vc = real(basis);
+            V_full = [Vs(p+1:end,:), Vc(p+1:end,:)];
+            irhat = real([zeros(p,1); V_full*gmhat(:)]);
+        else
+	        irhat = real([zeros(p,1); basis(p+1:end,:)*gmhat]);
+        end
     end
 
 end
