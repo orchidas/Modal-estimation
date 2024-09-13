@@ -23,33 +23,15 @@ function [fmopt, a1mopt, niter, nfunc] = bandwise_td_optimize(ir, fmhat0, a1mhat
 maxFreq = max(fmhat0);
 if room_flag
     nbands = 20; % band count, bands
-    ft = (0:nbands)/nbands*fs/2;    % processing band edges, Hz
-    wt = 2*pi*ft/fs;
-    rho = -round((1.0674 * sqrt(2/pi * atan(0.06583*(fs/1000))) - 0.1916)*1000)/1000;
-    wtw = atan2(((1-rho^2)*sin(wt)),((1+rho^2)*cos(wt) - 2*rho));
-    ft = wtw*fs/(2*pi);    %warped band edges
-    fh = (ft(1:end-1)+ft(2:end))/2; % processing band centers, Hz
-    beta = 1.2*diff(ft/2); % subband filter passband bandwidth, Hz
-
     order = 6;  % subband filter order, poles
     ripplestop = 80;    % stopband ripple, dB
     ripplepass = 1.5;   % passband ripple, dB
-    bLv = zeros(nbands, order+1);   %filter zero coeffs
-    aLv = zeros(nbands, order+1);   %filter pole coeffs
+    [bLv, aLv, fh, ft, ~] = filter_rir_in_subbands(fs, nbands, order, ripplestop, ripplepass);
     
-    for b = 1:nbands   
-        % design lowpass filter
-        [bL, aL] = ellip(order, ripplepass, ripplestop, beta(b)*2/fs);
-%        [bL,aL] = butter(order, beta(b)*2/fs);
-        bLv(b,:) = bL;
-        aLv(b,:) = aL;
-    end
 else   
     nbands = floor(maxFreq/f0);
-    beta = f0/10;   % subband filter passband bandwidth, Hz
-    fh = (1:nbands+1)*f0; %processing band centers
-    ft = [0, fh + beta]; %processing band edges
-    [bL, aL] = butter(4, beta*2/fs); %filter
+    order = 4;
+    [bL, aL, fh, ft] = filter_harmonic_signal_in_subbands(fs, nbands, order, f0);
 end
 
 ntaps = length(ir); % impulse response length, taps

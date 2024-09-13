@@ -10,7 +10,7 @@ function [bL, aL, fh, ft] = filter_harmonic_signal_in_subbands(fs, nbands, order
 %   ft - band edges in Hz
 %   fh - band centres in Hz
 
-if (varargin) > 3
+if nargin > 4
     B = varargin{1};
 else
     B = 0;
