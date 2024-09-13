@@ -60,39 +60,18 @@ if room_flag
     % band processing variables
     nbands = 20; % band count, bands
     nmbmax = 100*ones(nbands,1);   % maximum band mode count, modes
-    ft = (0:nbands)/nbands*fs/2;    % processing band edges, Hz
-    wt = 2*pi*ft/fs;
-    rho = -round((1.0674 * sqrt(2/pi * atan(0.06583*(fs/1000))) - 0.1916)*1000)/1000;
-    wtw = atan2(((1-rho^2)*sin(wt)),((1+rho^2)*cos(wt) - 2*rho));
-    ft = wtw*fs/(2*pi);    %warped band edges
-    fh = (ft(1:end-1)+ft(2:end))/2; % processing band centers, Hz
-    beta = 1.2*diff(ft/2); % subband filter passband bandwidth, Hz
-
     order = 7;  % subband filter order, poles
     ripplestop = 80;    % stopband ripple, dB
     ripplepass = 1.5;   % passband ripple, dB
-    bLv = zeros(nbands, order+1);   %filter zero coeffs
-    aLv = zeros(nbands, order+1);   %filter pole coeffs
-    
-    for b = 1:nbands   
-        % design lowpass filter
-        [bL, aL] = ellip(order, ripplepass, ripplestop, beta(b)*2/fs);
-        bLv(b,:) = bL;
-        aLv(b,:) = aL;
-    end
+    [bLv, aLv, fh, ft, ~] = filter_rir_in_subbands(fs, nbands, order, ripplestop, ripplepass);
     
 %% Piano modal estimation
 else     
-
     nbands = 60;
     B = 10^-4;
-    n = 1:nbands+1;
-    fh = f0*n.*sqrt(1+B*n.^2); %processing band centers
-    beta = f0/10;
-    ft = [0, fh + beta];
+    order = 4;
+    [bL, aL, fh, ft] = filter_harmonic_signal_in_subbands(fs, nbands, order, f0, B);
     nmbmax = 12;   % maximum band mode count, modes
-    % design lowpass filter
-    [bL, aL] = butter(4, beta*2/fs);
 end
 
 %% estimate band mode parameters

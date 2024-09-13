@@ -13,7 +13,7 @@ function [fmopt, a1mopt, niter, nfunc] = bandwise_td_optimize(ir, fmhat0, a1mhat
 % optim_type - 'td' or 'fd' (time domain or pole optimization)
 %
 % Outputs
-% fmopt, a1mopt - optimized mode frequencies and amplitures
+% fmopt, a1mopt - optimized mode frequencies and decay rates
 % niter - number of iterations
 % nfunc - number of function counts
 % Author - Orchisama Das,2021
@@ -92,10 +92,11 @@ for b = 1:nbands
     disp(['Frequency band ', num2str(b), ' has been processed']);
 
 end
-    
-    
-    
-    
+
+% return exp(-alpha)
+a1mopt = exp(-a1mopt);
+% make sure system is stable
+a1mopt(a1mopt >= 1.00) = 0.9999;
     
 end
 

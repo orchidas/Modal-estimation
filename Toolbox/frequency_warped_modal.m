@@ -80,9 +80,7 @@ if opt_flag
 
     [gmhat, irhat] = estimate_mode_amps(ir, fmhat_opt, a1mhat_opt, p, t, fs, dur, opt_flag);
     mode_params.freqs = fmhat_opt;
-    mode_params.decay_rate = exp(-a1mhat_opt);
-    % make sure system is stable
-    mode_params.decay_rate(mode_params.decay_rate >= 1.00) = 0.9999;
+    mode_params.decay_rate = a1mhat_opt;
     mode_params.amplitude = [gmhat(1:length(fmhat_opt)), gmhat(length(fmhat_opt)+1:end)];
 else
     [gmhat, irhat] = estimate_mode_amps(ir, fmhat_com, a1mhat_com, p, t, fs, dur, opt_flag);
